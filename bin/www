@@ -22,29 +22,41 @@ app.set('port', port);
 var server = http.createServer(app);
 
 /**
- * Create Socket io.
+ * Create Socket io (server).
  */
 
 var io = require('socket.io')(server);
 
-
+var socketInfo = {};
 /**
  * Socket on connection.
+ * #############################
+ * #### Server side actions ####
+ * #############################
  */
 io.sockets.on('connection', function(socket) {
+    // Save the socket
+    socketInfo[socket.id] = [];
+    socketInfo[socket.id].socket = socket; // Socket
+    socketInfo[socket.id].data= {}; // socket related data
 
-  socket.on('username', function(username) {
-    socket.username = username;
-    io.emit('is_online', '🔵 <i>' + socket.username + ' join the chat..</i>');
-  });
+    // Remove the socket
+    socket.on('disconnect', function(username) {
+        io.emit('is_online', '🔴 <i>' + username + ' left the chat..</i>');
+        delete socketInfo[socket.id];
+    });
 
-  socket.on('disconnect', function(username) {
-    io.emit('is_online', '🔴 <i>' + username + ' left the chat..</i>');
-  });
+    /** ################## */
+    /** #### ACTIONS #### */
+    /** ################ */
+    socket.on('username', function(username) {
+      socket.username = username;
+      io.emit('is_online', '🔵 <i>' + socket.username + ' join the chat..</i>');
+    });
 
-  socket.on('chat_message', function(message) {
-    io.emit('chat_message', '<strong>' + socket.username + '</strong>: ' + message);
-  });
+    socket.on('chat_message', function(message) {
+      io.emit('chat_message', '<strong>' + socket.username + '</strong>: ' + message);
+    });
 
 });
 

@@ -13,8 +13,8 @@
         <div class="inner">
             <h3 class="masthead-brand">Cover</h3>
             <nav class="nav nav-masthead justify-content-center">
-                <a class="nav-link active" href="#">Home</a>
-                <a class="nav-link" href="/room">Room hub</a>
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link active" href="/room">Room hub</a>
                 <a class="nav-link" href="/about">About</a>
             </nav>
         </div>
@@ -23,7 +23,7 @@
         <h1 class="cover-heading">Cover your page</h1>
         <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>
         <p class="lead">
-            <a href="#" class="btn btn-lg btn-secondary" onclick="generateRoom()">New Room</a>
+            <a href="#" class="btn btn-lg btn-secondary">Learn more</a>
         </p>
     </main>
     <footer class="mastfoot mt-auto">
@@ -32,13 +32,5 @@
         </div>
     </footer>
 </div>
-<script src="/socket.io/socket.io.js"></script>
-<script>
-    const socket = io('http://localhost');
-
-    function generateRoom() {
-        console.log("generate a room");
-    }
-</script>
 </body>
 </html>
