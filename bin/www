@@ -1,76 +1,63 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
+/** Module dependencies.*/
+const app = require('../server');
+const debug = require('debug')('bit.ray:server');
+const http = require('http');
 
-var app = require('../app');
-var debug = require('debug')('bit.ray:server');
-var http = require('http');
-
-/**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || '3000');
+/** Get port from environment and store in Express.*/
+const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
+/** Create HTTP server.*/
+const server = http.createServer(app);
 
-var server = http.createServer(app);
+/** Listen on provided port, on all network interfaces.*/
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
-/**
- * Create Socket io (server).
- */
+/** Create Socket io (server).*/
+const io = require('socket.io')(server);
 
-var io = require('socket.io')(server);
-var nsp = io.of('/rooms');
+/** Namespace*/
+const nsp = io.of('/rooms');
 
-var socketInfo = {};
+/** List of sockets*/
+const socketInfo = {};
 
+/** Connect to namespace*/
 nsp.on('connection', function (socket) {
     console.log("Connected to rooms");
     addToSocketList(socket);
 
-    // Send *msg* to *id*
+    /** Namespace actions*/
     socket.on('say to someone', function(id, msg){
         socket.broadcast.to(id).emit('my message', `${socket.id}: ${msg}`);
     });
 });
 
-
-/**
- * Socket on connection.
- * #############################
- * #### Server side actions ####
- * #############################
- */
+/** Connect to server*/
 io.sockets.on('connection', function(socket) {
-    // Save the socket
-    // addToSocketList(socket);
-
     // Remove the socket
     socket.on('disconnect', function(username) {
         // io.emit('is_online', '🔴 <i>' + username + ' left the chat..</i>');
         removeFromSocketList(socket);
     });
 
-    /** ################## */
-    /** #### ACTIONS #### */
-    /** ################ */
+    /** Socket actions*/
     socket.on('username', function(username) {
-      socket.username = username;
-      io.emit('is_online', '🔵 <i>' + socket.username + ' join the chat..</i>');
+        socket.username = username;
+        io.emit('is_online', '🔵 <i>' + socket.username + ' join the chat..</i>');
     });
 
     socket.on('chat_message', function(message) {
-      io.emit('chat_message', '<strong>' + socket.username + '</strong>: ' + message);
+        io.emit('chat_message', '<strong>' + socket.username + '</strong>: ' + message);
     });
 
 });
 
+/** Add socket to SocketList*/
 function addToSocketList(socket) {
     socketInfo[socket.id] = [];
     socketInfo[socket.id].socket = socket; // Socket
@@ -79,26 +66,17 @@ function addToSocketList(socket) {
     console.log(`Number of online betrayers: ${Object.keys(socketInfo).length}`);
 }
 
+/** Remove socket from SocketList*/
 function removeFromSocketList(socket) {
     delete socketInfo[socket.id];
     console.log(`Removed ${socket.id}`);
     console.log(`Number of online betrayers: ${Object.keys(socketInfo).length}`);
 }
 
-/**
- * Listen on provided port, on all network interfaces.
- */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
+/** Normalize a port into a number, string, or false.*/
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+  let port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe
@@ -113,16 +91,13 @@ function normalizePort(val) {
   return false;
 }
 
-/**
- * Event listener for HTTP server "error" event.
- */
-
+/** Event listener for HTTP server "error" event.*/
 function onError(error) {
   if (error.syscall !== 'listen') {
     throw error;
   }
 
-  var bind = typeof port === 'string'
+  let bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port;
 
@@ -141,13 +116,10 @@ function onError(error) {
   }
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
-
+/** Event listener for HTTP server "listening" event.*/
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
+  let addr = server.address();
+  let bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
