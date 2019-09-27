@@ -26,8 +26,21 @@ var server = http.createServer(app);
  */
 
 var io = require('socket.io')(server);
+var nsp = io.of('/rooms');
 
 var socketInfo = {};
+
+nsp.on('connection', function (socket) {
+    console.log("Connected to rooms");
+    addToSocketList(socket);
+
+    // Send *msg* to *id*
+    socket.on('say to someone', function(id, msg){
+        socket.broadcast.to(id).emit('my message', `${socket.id}: ${msg}`);
+    });
+});
+
+
 /**
  * Socket on connection.
  * #############################
@@ -36,14 +49,12 @@ var socketInfo = {};
  */
 io.sockets.on('connection', function(socket) {
     // Save the socket
-    socketInfo[socket.id] = [];
-    socketInfo[socket.id].socket = socket; // Socket
-    socketInfo[socket.id].data= {}; // socket related data
+    // addToSocketList(socket);
 
     // Remove the socket
     socket.on('disconnect', function(username) {
-        io.emit('is_online', '🔴 <i>' + username + ' left the chat..</i>');
-        delete socketInfo[socket.id];
+        // io.emit('is_online', '🔴 <i>' + username + ' left the chat..</i>');
+        removeFromSocketList(socket);
     });
 
     /** ################## */
@@ -59,6 +70,20 @@ io.sockets.on('connection', function(socket) {
     });
 
 });
+
+function addToSocketList(socket) {
+    socketInfo[socket.id] = [];
+    socketInfo[socket.id].socket = socket; // Socket
+    socketInfo[socket.id].data= {}; // socket related data
+    console.log(`Added ${socket.id}`);
+    console.log(`Number of online betrayers: ${Object.keys(socketInfo).length}`);
+}
+
+function removeFromSocketList(socket) {
+    delete socketInfo[socket.id];
+    console.log(`Removed ${socket.id}`);
+    console.log(`Number of online betrayers: ${Object.keys(socketInfo).length}`);
+}
 
 /**
  * Listen on provided port, on all network interfaces.
