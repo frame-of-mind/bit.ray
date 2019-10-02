@@ -26,21 +26,11 @@ const nsp = io.of('/rooms');
 /** List of sockets*/
 const socketInfo = {};
 
-/** Connect to namespace*/
-nsp.on('connection', function (socket) {
-    console.log("Connected to rooms");
-    addToSocketList(socket);
-
-    /** Namespace actions*/
-    socket.on('say to someone', function(id, msg){
-        socket.broadcast.to(id).emit('my message', `${socket.id}: ${msg}`);
-    });
-});
-
 /** Connect to server*/
 io.sockets.on('connection', function(socket) {
+    addToSocketList(socket);
     // Remove the socket
-    socket.on('disconnect', function(username) {
+    socket.on('disconnect', function() {
         // io.emit('is_online', '🔴 <i>' + username + ' left the chat..</i>');
         removeFromSocketList(socket);
     });
