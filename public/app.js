@@ -1,1 +1,0 @@
-console.error("Error: Parsing file /home/saep-ict/source/bit.ray/client/main.js: 'import' and 'export' may appear only with 'sourceType: module' (15:0)");
