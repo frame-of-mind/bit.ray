@@ -5,6 +5,8 @@ const app = require('../server');
 const debug = require('debug')('bit.ray:server');
 const http = require('http');
 
+const models = require('../common/models');
+
 /** Get port from environment and store in Express.*/
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
@@ -20,29 +22,33 @@ server.on('listening', onListening);
 /** Create Socket io (server).*/
 const io = require('socket.io')(server);
 
-/** Namespace*/
-const nsp = io.of('/rooms');
-
 /** List of sockets*/
 const socketInfo = {};
 
 /** Connect to server*/
 io.sockets.on('connection', function(socket) {
     addToSocketList(socket);
+    io.emit('connected_socket', socketInfo);
     // Remove the socket
     socket.on('disconnect', function() {
         // io.emit('is_online', '🔴 <i>' + username + ' left the chat..</i>');
         removeFromSocketList(socket);
     });
 
+    socket.on('say_to_someone', function(body){
+        let from = body.from; // == socket.id
+        let to = body.to;
+        let text = body.text;
+        let type = body.type;
+
+        console.log(`[[ ${from} ]] > [[ ${to} ]]: "${text}"`);
+        socket.broadcast.to(to).emit('my_message', body);
+    });
+
     /** Socket actions*/
     socket.on('username', function(username) {
         socket.username = username;
         io.emit('is_online', '🔵 <i>' + socket.username + ' join the chat..</i>');
-    });
-
-    socket.on('chat_message', function(message) {
-        io.emit('chat_message', '<strong>' + socket.username + '</strong>: ' + message);
     });
 
 });
