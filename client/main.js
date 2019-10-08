@@ -5,6 +5,8 @@ const models = require('../common/models');
 
 const socket = io('http://localhost:3000');
 
+var chats = {};
+
 socket.on('connect', () => {
     console.log(`[[ ${socket.id} ]] connected.`);
 });
@@ -22,6 +24,12 @@ socket.on('my_message', function (body) {
     let to = body.to; // == socket.id
     let text = body.text;
     let type = body.type;
+
+    if(chats[from] === undefined) {
+        chats[from] = new models.Chat(from, to);
+    }
+    chats[from].addMessage(body);
+
     console.log(`[[ ${socket.id} ]] message received: "${text}".`);
 });
 
