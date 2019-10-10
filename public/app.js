@@ -8,8 +8,20 @@ const socket = io('http://localhost:3000');
 
 var chats = {};
 
+// client on connect generate a UID
+// Emit it to server
 socket.on('connect', () => {
-    console.log(`[[ ${socket.id} ]] connected.`);
+    // Se è undefined lo genero
+    console.log("localstorage: ", localStorage.getItem('uniqueId') === null);
+    if(localStorage.getItem('uniqueId') === null) {
+        // random ID
+        let randomlyGeneratedUID = Math.random().toString(36).substring(3, 16) + +new Date;
+        localStorage.setItem('uniqueId', randomlyGeneratedUID);
+    }
+    // Emit di quello che c'è in localStorage.getItem('uniqueId')
+    socket.emit('register', localStorage.getItem('uniqueId'));
+
+    console.log(`[[ ${socket.id} ]] connected with UID [[ ${randomlyGeneratedUID} ]]`);
 });
 
 socket.on('connected_socket', socketInfo => {

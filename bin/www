@@ -27,6 +27,22 @@ const socketInfo = {};
 
 /** Connect to server*/
 io.sockets.on('connection', function(socket) {
+
+    socket.on('register', function (data) {
+        console.log(`[[ ${socket.id} ]] send UID [[ ${data} ]]`);
+
+        //there was something in localstorage
+        // if (game.Players.existsUID(data)) {
+        //     player = game.Players.getByUID(data);
+        //     player.disconnected = false;
+        // } else {
+        //     //timed out, create new player
+        // }
+
+    });
+
+
+
     addToSocketList(socket);
     io.emit('connected_socket', socketInfo);
     // Remove the socket
