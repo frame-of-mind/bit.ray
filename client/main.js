@@ -20,17 +20,12 @@ socket.on('connected_socket', socketInfo => {
 });
 
 socket.on('my_message', function (body) {
-    let from = body.from;
-    let to = body.to; // == socket.id
-    let text = body.text;
-    let type = body.type;
-
-    if(chats[from] === undefined) {
-        chats[from] = new models.Chat(from, to);
+    if(chats[body.from] === undefined) {
+        chats[body.from] = new models.Chat(body.from, body.to);
     }
-    chats[from].addMessage(body);
+    addMessageToChat(body.from, body);
 
-    console.log(`[[ ${socket.id} ]] message received: "${text}".`);
+    console.log(`[[ ${socket.id} ]] message received: "${body.text}".`);
 });
 
 $('#create-room-button').click(createRoom);
@@ -45,7 +40,16 @@ function sendMessageToSocket() {
     let text = $('#message-socket-input').val();
 
     let message = new models.MessageBody(socket.id, socketId, text, 'TEXT');
+    if(chats[message.to] === undefined) {
+        chats[message.to] = new models.Chat(message.to, message.from);
+    }
+    addMessageToChat(message.to, message);
 
     console.log(`[[ ${socket.id} ]] wants to send to [[ ${socketId} ]] this message: "${text}"`);
     socket.emit('say_to_someone', message);
+}
+
+function addMessageToChat(chatId, messageBody) {
+    chats[chatId].addMessage(messageBody);
+    console.log(chats);
 }

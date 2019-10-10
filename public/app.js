@@ -6,6 +6,8 @@ const models = require('../common/models');
 
 const socket = io('http://localhost:3000');
 
+var chats = {};
+
 socket.on('connect', () => {
     console.log(`[[ ${socket.id} ]] connected.`);
 });
@@ -19,11 +21,12 @@ socket.on('connected_socket', socketInfo => {
 });
 
 socket.on('my_message', function (body) {
-    let from = body.from;
-    let to = body.to; // == socket.id
-    let text = body.text;
-    let type = body.type;
-    console.log(`[[ ${socket.id} ]] message received: "${text}".`);
+    if(chats[body.from] === undefined) {
+        chats[body.from] = new models.Chat(body.from, body.to);
+    }
+    addMessageToChat(body.from, body);
+
+    console.log(`[[ ${socket.id} ]] message received: "${body.text}".`);
 });
 
 $('#create-room-button').click(createRoom);
@@ -38,9 +41,18 @@ function sendMessageToSocket() {
     let text = $('#message-socket-input').val();
 
     let message = new models.MessageBody(socket.id, socketId, text, 'TEXT');
+    if(chats[message.to] === undefined) {
+        chats[message.to] = new models.Chat(message.to, message.from);
+    }
+    addMessageToChat(message.to, message);
 
     console.log(`[[ ${socket.id} ]] wants to send to [[ ${socketId} ]] this message: "${text}"`);
     socket.emit('say_to_someone', message);
+}
+
+function addMessageToChat(chatId, messageBody) {
+    chats[chatId].addMessage(messageBody);
+    console.log(chats);
 }
 },{"../common/models":3,"./myFunctions":2,"jquery/dist/jquery":35,"socket.io-client":39}],2:[function(require,module,exports){
 var foo = function () {
@@ -65,8 +77,46 @@ class MessageBody {
     }
 }
 
+class Chat {
+    constructor(from, to) {
+        this.from = from;
+        this.to = to;
+        // Max groups of messages
+        this.setMaxGroups(2);
+        // Messages per group
+        this.setMaxMessages(3);
+        // Past Messages
+        this.history = [];
+        // Current displayed messages
+        this.current = [];
+    }
+
+    setMaxGroups(max) {
+        if(max > 0) {
+            this.maxGroups = max;
+        }
+    }
+
+    setMaxMessages(max) {
+        if(max > 0) {
+            this.maxMessages = max;
+        }
+    }
+
+    addMessage(messageBody) {
+        // [ {A}, {B}, {B}, {B} ]
+        this.history.push(messageBody);
+        this.current.push(messageBody);
+        if(this.current.length > this.maxMessages) {
+            this.current.shift();
+        }
+    }
+
+}
+
 module.exports = {
-    MessageBody: MessageBody
+    MessageBody: MessageBody,
+    Chat: Chat
 };
 },{}],4:[function(require,module,exports){
 module.exports = after
