@@ -20,7 +20,7 @@ socket.on('connect', () => {
     // Emit di quello che c'è in localStorage.getItem('uniqueId')
     socket.emit('register', randomlyGeneratedUID);
 
-    console.log(`[[ ${socket.id} ]] connected with UID [[ ${randomlyGeneratedUID} ]]`);
+    console.log(`socket [[ ${socket.id} ]] connected with UID [[ ${randomlyGeneratedUID} ]]`);
 });
 
 socket.on('connected_socket', socketInfo => {
@@ -37,27 +37,27 @@ socket.on('my_message', function (body) {
     }
     addMessageToChat(body.from, body);
 
-    console.log(`[[ ${socket.id} ]] message received: "${body.text}".`);
+    console.log(`[[ ${localStorage.getItem('uniqueId')} ]] message received: "${body.text}".`);
 });
 
 $('#create-room-button').click(createRoom);
-$('#connect-to-socket-button').click(sendMessageToSocket);
+$('#connect-to-uid-button').click(sendMessageToUID);
 
 function createRoom() {
     console.log(`[[ ${socket.id} ]] called "createRoom" method.`);
 }
 
-function sendMessageToSocket() {
-    let socketId = $('#connect-to-socket-input').val();
-    let text = $('#message-socket-input').val();
+function sendMessageToUID() {
+    let receiverUID = $('#connect-to-uid-input').val();
+    let text = $('#message-uid-input').val();
 
-    let message = new models.MessageBody(socket.id, socketId, text, 'TEXT');
+    let message = new models.MessageBody(localStorage.getItem('uniqueId'), receiverUID, text, 'TEXT');
     if(chats[message.to] === undefined) {
         chats[message.to] = new models.Chat(message.to, message.from);
     }
     addMessageToChat(message.to, message);
 
-    console.log(`[[ ${socket.id} ]] wants to send to [[ ${socketId} ]] this message: "${text}"`);
+    console.log(`[[ ${localStorage.getItem('uniqueId')} ]] wants to send to [[ ${receiverUID} ]] this message: "${text}"`);
     socket.emit('say_to_someone', message);
 }
 

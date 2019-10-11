@@ -28,9 +28,11 @@ const socketInfo = {};
 /** Connect to server*/
 io.sockets.on('connection', function(socket) {
 
-    socket.on('register', function (data) {
-        console.log(`[[ ${socket.id} ]] send UID [[ ${data} ]]`);
+    // Registra l'UID e collegalo al socket
+    socket.on('register', function (UID) {
+        console.log(`[[ ${socket.id} ]] send UID [[ ${UID} ]]`);
 
+        addToSocketList(UID, socket);
         //there was something in localstorage
         // if (game.Players.existsUID(data)) {
         //     player = game.Players.getByUID(data);
@@ -41,24 +43,25 @@ io.sockets.on('connection', function(socket) {
 
     });
 
-
-
-    addToSocketList(socket);
     io.emit('connected_socket', socketInfo);
     // Remove the socket
     socket.on('disconnect', function() {
         // io.emit('is_online', '🔴 <i>' + username + ' left the chat..</i>');
-        removeFromSocketList(socket);
+        // removeFromSocketList(socket);
+        console.log(`socket ${socket.id} disconnected`)
     });
 
     socket.on('say_to_someone', function(body){
-        let from = body.from; // == socket.id
+        let from = body.from; // == UID
         let to = body.to;
         let text = body.text;
         let type = body.type;
 
+        // Dallo UID recupero il socket id
+        let toSocketId = socketInfo[to].socket.id;
+
         console.log(`[[ ${from} ]] > [[ ${to} ]]: "${text}"`);
-        socket.broadcast.to(to).emit('my_message', body);
+        socket.broadcast.to(toSocketId).emit('my_message', body);
     });
 
     /** Socket actions*/
@@ -70,11 +73,11 @@ io.sockets.on('connection', function(socket) {
 });
 
 /** Add socket to SocketList*/
-function addToSocketList(socket) {
-    socketInfo[socket.id] = [];
-    socketInfo[socket.id].socket = socket; // Socket
-    socketInfo[socket.id].data= {}; // socket related data
-    console.log(`Added ${socket.id}`);
+function addToSocketList(UID, socket) {
+    socketInfo[UID] = [];
+    socketInfo[UID].socket = socket; // Socket
+    socketInfo[UID].data= {}; // socket related data
+    console.log(`Added ${UID}`);
     console.log(`Number of online betrayers: ${Object.keys(socketInfo).length}`);
 }
 
