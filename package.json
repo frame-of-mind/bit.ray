@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "watch": "watchify -x uws client/main.js -o public/app.js -v",
+    "watch": "watchify -x uws client/main.js -o public/javascripts/app.js -v",
     "build": "browserify --debug -x uws client/main.js -o public/javascripts/app.js",
     "start": "npm run watch & nodemon ./bin/www"
   },

@@ -5,7 +5,10 @@ const models = require('../common/models');
 
 const socket = io('http://localhost:3000');
 
+var chatTemplate = require('./chat');
+
 var chats = {};
+var chatsContatiner = $('#chats');
 
 // client on connect generate a UID
 // Emit it to server
@@ -32,10 +35,15 @@ socket.on('connected_socket', socketInfo => {
 });
 
 socket.on('my_message', function (body) {
+    console.log("chats[body.from] ", chats[body.from]);
     if(chats[body.from] === undefined) {
         chats[body.from] = new models.Chat(body.from, body.to);
+
+        // Append new chat to $('#chats')
+        chatsContatiner.append(chatTemplate.chat)
     }
     addMessageToChat(body.from, body);
+    // Change text
 
     console.log(`[[ ${localStorage.getItem('uniqueId')} ]] message received: "${body.text}".`);
 });
@@ -56,6 +64,7 @@ function sendMessageToUID() {
         chats[message.to] = new models.Chat(message.to, message.from);
     }
     addMessageToChat(message.to, message);
+    // Change text
 
     console.log(`[[ ${localStorage.getItem('uniqueId')} ]] wants to send to [[ ${receiverUID} ]] this message: "${text}"`);
     socket.emit('say_to_someone', message);
