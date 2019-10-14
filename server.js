@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, 'node_modules/bootstrap/dist')));
 app.use(express.static(path.join(__dirname, 'node_modules/socket.io/lib')));
 
 app.use('/', indexRouter);
-app.use('/room', roomRouter);
+app.use('/room-hub', roomRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
