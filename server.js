@@ -20,6 +20,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'node_modules/bootstrap/dist')));
 app.use(express.static(path.join(__dirname, 'node_modules/socket.io/lib')));
+app.use(express.static(path.join(__dirname, 'node_modules/clipboard/dist')));
 
 app.use('/', indexRouter);
 app.use('/room-hub', roomRouter);

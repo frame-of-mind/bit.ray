@@ -10,7 +10,7 @@ var chatTemplate = require('./chat');
 var chats = {};
 var chatsContatiner = $('#chats');
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = window.location.href;
 
 // client on connect generate a UID
 // Emit it to server
@@ -54,8 +54,10 @@ $('#generate-link-button').click(generateLink);
 $('#connect-to-uid-button').click(sendMessageToUID);
 
 function generateLink() {
-    let myLink = `${BASE_URL}/room-hub?uid=${localStorage.getItem('uniqueId')}`;
-
+    // http://localhost:3000/room-hub?uid=jy0aasm7jx1571061415938
+    let myLink = `${BASE_URL}?uid=${localStorage.getItem('uniqueId')}`;
+    $('#my-uid').text(myLink);
+    $('#my-uid').val(myLink);
     console.log(`myLink: ${myLink}`);
 }
 

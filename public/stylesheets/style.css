@@ -516,3 +516,12 @@ body
 }
 
 /**/
+
+.rounded-solid-border {
+  border-radius: 5px;
+  border: 1px solid #dfece7;
+}
+
+.light-fa {
+  color: #dfece7;
+}
