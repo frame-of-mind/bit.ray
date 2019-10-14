@@ -7,6 +7,8 @@ const socket = io('http://localhost:3000');
 
 var chats = {};
 
+const BASE_URL = 'http://localhost:3000';
+
 // client on connect generate a UID
 // Emit it to server
 socket.on('connect', () => {
@@ -40,11 +42,13 @@ socket.on('my_message', function (body) {
     console.log(`[[ ${localStorage.getItem('uniqueId')} ]] message received: "${body.text}".`);
 });
 
-$('#create-room-button').click(createRoom);
+$('#generate-link-button').click(generateLink);
 $('#connect-to-uid-button').click(sendMessageToUID);
 
-function createRoom() {
-    console.log(`[[ ${socket.id} ]] called "createRoom" method.`);
+function generateLink() {
+    let myLink = `${BASE_URL}/room-hub?uid=${localStorage.getItem('uniqueId')}`;
+
+    console.log(`myLink: ${myLink}`);
 }
 
 function sendMessageToUID() {
