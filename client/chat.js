@@ -1,4 +1,10 @@
-var chat = `<div class="popup-box chat-popup popup-box-on" id="qnimate">
+const $ = require('jquery/dist/jquery');
+
+const SEND = 'send';
+const RECEIVE = 'receive';
+
+var chat = `
+<div class="popup-box chat-popup popup-box-on" id="qnimate">
     <div class="popup-head">
         <!--<div class="popup-head-left pull-left"><img src="http://bootsnipp.com/img/avatars/bcf1c0d13e5500875fdd5a7e8ad9752ee16e7462.jpg" alt="iamgurdeeposahan"> Gurdeep Osahan</div>-->
         <!--<div class="popup-head-right pull-right">-->
@@ -16,55 +22,31 @@ var chat = `<div class="popup-box chat-popup popup-box-on" id="qnimate">
         <!--<button data-widget="remove" id="removeClass" class="chat-header-button pull-right" type="button"><i class="fa fa-power-off"></i></button>-->
         <!--</div>-->
     </div>
-    <div class="popup-messages">
-        <!--<div class="direct-chat-messages">-->
-        <!--<div class="chat-box-single-line">-->
-        <!--<abbr class="timestamp">October 8th, 2015</abbr>-->
-        <!--</div>-->
-        <!--&lt;!&ndash; Message. Default to the left &ndash;&gt;-->
-        <!--<div class="direct-chat-msg doted-border">-->
-        <!--<div class="direct-chat-info clearfix">-->
-        <!--<span class="direct-chat-name pull-left">Osahan</span>-->
-        <!--</div>-->
-        <!--&lt;!&ndash; /.direct-chat-info &ndash;&gt;-->
-        <!--&lt;!&ndash;<img alt="message user image" src="http://bootsnipp.com/img/avatars/bcf1c0d13e5500875fdd5a7e8ad9752ee16e7462.jpg" class="direct-chat-img">&lt;!&ndash; /.direct-chat-img &ndash;&gt;&ndash;&gt;-->
-        <!--<div class="direct-chat-text">-->
-        <!--Hey bro, how’s everything going ?-->
-        <!--</div>-->
-        <!--<div class="direct-chat-info clearfix">-->
-        <!--<span class="direct-chat-timestamp pull-right">3.36 PM</span>-->
-        <!--</div>-->
-        <!--<div class="direct-chat-info clearfix">-->
-        <!--<span class="direct-chat-img-reply-small pull-left"></span>-->
-        <!--<span class="direct-chat-reply-name">Singh</span>-->
-        <!--</div>-->
-        <!--&lt;!&ndash; /.direct-chat-text &ndash;&gt;-->
-        <!--</div>-->
-        <!--&lt;!&ndash; /.direct-chat-msg &ndash;&gt;-->
-        <!--<div class="chat-box-single-line">-->
-        <!--<abbr class="timestamp">October 9th, 2015</abbr>-->
-        <!--</div>-->
-        <!--&lt;!&ndash; Message. Default to the left &ndash;&gt;-->
-        <!--<div class="direct-chat-msg doted-border">-->
-        <!--<div class="direct-chat-info clearfix">-->
-        <!--<span class="direct-chat-name pull-left">Osahan</span>-->
-        <!--</div>-->
-        <!--&lt;!&ndash; /.direct-chat-info &ndash;&gt;-->
-        <!--<img alt="iamgurdeeposahan" src="http://bootsnipp.com/img/avatars/bcf1c0d13e5500875fdd5a7e8ad9752ee16e7462.jpg" class="direct-chat-img">&lt;!&ndash; /.direct-chat-img &ndash;&gt;-->
-        <!--<div class="direct-chat-text">-->
-        <!--Hey bro, how’s everything going ?-->
-        <!--</div>-->
-        <!--<div class="direct-chat-info clearfix">-->
-        <!--<span class="direct-chat-timestamp pull-right">3.36 PM</span>-->
-        <!--</div>-->
-        <!--<div class="direct-chat-info clearfix">-->
-        <!--<img alt="iamgurdeeposahan" src="http://bootsnipp.com/img/avatars/bcf1c0d13e5500875fdd5a7e8ad9752ee16e7462.jpg" class="direct-chat-img big-round">-->
-        <!--<span class="direct-chat-reply-name">Singh</span>-->
-        <!--</div>-->
-        <!--&lt;!&ndash; /.direct-chat-text &ndash;&gt;-->
-        <!--</div>-->
-        <!--&lt;!&ndash; /.direct-chat-msg &ndash;&gt;-->
-        <!--</div>-->
+    <div id="popup-messages" class="popup-messages">
+        <div id="direct-chat-messages" class="direct-chat-messages">
+            <div class="direct-chat-msg">
+                <div class="direct-chat-info clearfix">
+                    <span class="direct-chat-name pull-left" id="sender">Osahan</span>
+                </div>
+                <div class="direct-chat-text" id="message-text">
+                    Hey bro, how’s everything going ?
+                </div>
+                <div class="direct-chat-info clearfix" id="send-time">
+                    <span class="direct-chat-timestamp pull-right">3.36 PM</span>
+                </div>
+            </div>
+            <div class="direct-chat-msg">
+                <div class="direct-chat-info clearfix">
+                    <span class="direct-chat-name pull-right" id="sender">Maic</span>
+                </div>
+                <div class="direct-chat-text" id="message-text">
+                    Hey bro, how’s everything going ?
+                </div>
+                <div class="direct-chat-info clearfix" id="send-time">
+                    <span class="direct-chat-timestamp pull-right">3.36 PM</span>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="popup-messages-footer">
         <textarea id="status_message" placeholder="Type a message..." rows="10" cols="40" name="message"></textarea>
@@ -77,6 +59,46 @@ var chat = `<div class="popup-box chat-popup popup-box-on" id="qnimate">
     </div>
 </div>`;
 
+var appendToChat = function (messageBody, type) {
+    let toAppend = type === RECEIVE ? receivedMessage(messageBody) : sentMessage(messageBody);
+    $('#direct-chat-messages').append(toAppend);
+};
+
+function receivedMessage(messageBody) {
+    let html = `
+        <div class="direct-chat-msg">
+            <div class="direct-chat-info clearfix">
+                <span class="direct-chat-name pull-left" id="sender">${messageBody.from}</span>
+            </div>
+            <div class="direct-chat-text pull-left" id="message-text">
+                ${messageBody.text}
+            </div>
+            <div class="direct-chat-info clearfix" id="send-time">
+                <span class="direct-chat-timestamp pull-right">now</span>
+            </div>
+        </div>`;
+    return html;
+}
+
+function sentMessage(messageBody) {
+    let html =`
+    <div class="direct-chat-msg">
+        <div class="direct-chat-info clearfix">
+            <span class="direct-chat-name pull-right" id="sender">me: ${messageBody.from}</span>
+        </div>
+        <div class="direct-chat-text" id="message-text">
+            ${messageBody.text}
+        </div>
+        <div class="direct-chat-info clearfix" id="send-time">
+            <span class="direct-chat-timestamp pull-right">now</span>
+        </div>
+    </div>`;
+    return html;
+}
+
 module.exports = {
-    chat: chat
+    SEND: SEND,
+    RECEIVE: RECEIVE,
+    chat: chat,
+    appendToChat: appendToChat
 };

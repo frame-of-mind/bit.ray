@@ -390,7 +390,7 @@ body
 .popup-messages .direct-chat-text {
   background: #dfece7 none repeat scroll 0 0;
   border: 1px solid #dfece7;
-  border-radius: 2px;
+  border-radius: 15px;
   color: #1f2121;
 }
 
@@ -448,7 +448,7 @@ body
 
 .popup-messages .doted-border::after {
   background: transparent none repeat scroll 0 0 !important;
-  border-right: 2px dotted #fff !important;
+  /*border-right: 2px dotted #fff !important;*/
   bottom: 0;
   content: "";
   left: 17px;
@@ -462,7 +462,7 @@ body
 
 .popup-messages .direct-chat-msg::after {
   background: #fff none repeat scroll 0 0;
-  border-right: medium none;
+  /*border-right: medium none;*/
   bottom: 0;
   content: "";
   left: 17px;

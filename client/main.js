@@ -12,7 +12,7 @@ var chatsContatiner = $('#chats');
 
 const BASE_URL = window.location.href;
 
-// client on connect generate a UID
+// client on connect generate an UID
 // Emit it to server
 socket.on('connect', () => {
     // Se è null lo genero
@@ -22,7 +22,6 @@ socket.on('connect', () => {
         randomlyGeneratedUID = Math.random().toString(36).substring(3, 16) + +new Date;
         localStorage.setItem('uniqueId', randomlyGeneratedUID);
     }
-    // Emit di quello che c'è in localStorage.getItem('uniqueId')
     socket.emit('register', randomlyGeneratedUID);
 
     console.log(`socket [[ ${socket.id} ]] connected with UID [[ ${randomlyGeneratedUID} ]]`);
@@ -45,6 +44,7 @@ socket.on('my_message', function (body) {
         chatsContatiner.append(chatTemplate.chat)
     }
     addMessageToChat(body.from, body);
+    chatTemplate.appendToChat(body, chatTemplate.RECEIVE);
     // Change text
 
     console.log(`[[ ${localStorage.getItem('uniqueId')} ]] message received: "${body.text}".`);
@@ -68,8 +68,13 @@ function sendMessageToUID() {
     let message = new models.MessageBody(localStorage.getItem('uniqueId'), receiverUID, text, 'TEXT');
     if(chats[message.to] === undefined) {
         chats[message.to] = new models.Chat(message.to, message.from);
+
+        // Append new chat to $('#chats')
+        chatsContatiner.append(chatTemplate.chat)
     }
+
     addMessageToChat(message.to, message);
+    chatTemplate.appendToChat(message, chatTemplate.SEND);
     // Change text
 
     console.log(`[[ ${localStorage.getItem('uniqueId')} ]] wants to send to [[ ${receiverUID} ]] this message: "${text}"`);
